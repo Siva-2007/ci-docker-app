@@ -19,9 +19,14 @@ jobs:
       - name: Stop existing container
         shell: powershell
         run: |
-          docker stop cloud-infrastructure-test 2>$null
-          docker rm cloud-infrastructure-test 2>$null
-          exit 0
+          $container = docker ps -aq -f "name=^cloud-infrastructure-test$"
+
+          if ($container) {
+            docker stop cloud-infrastructure-test
+            docker rm cloud-infrastructure-test
+          } else {
+            Write-Host "No existing container found. Continuing deployment."
+          }
 
       - name: Run Docker container
         run: docker run -d --name cloud-infrastructure-test -p 8000:8000 cloud-infrastructure-test:latest
